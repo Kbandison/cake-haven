@@ -120,7 +120,6 @@ export default function OrdersPage() {
       }
       setLoading(false);
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page, pageSize, statusFilter, showFulfilled, search]);
 
   function StatusPill({ status }: { status: string }) {

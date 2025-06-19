@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { X } from "lucide-react";
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
