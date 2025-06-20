@@ -2,6 +2,7 @@ import NavBar from "@/components/NavBar";
 import "./globals.css";
 import { Quicksand, Pacifico } from "next/font/google";
 import ClientLayout from "./client-layout";
+import Footer from "@/components/Footer";
 
 const quicksand = Quicksand({ subsets: ["latin"], weight: ["400", "700"] });
 const pacifico = Pacifico({
@@ -21,6 +22,7 @@ export default function RootLayout({
         <ClientLayout>
           <NavBar />
           {children}
+          <Footer />
         </ClientLayout>
       </body>
     </html>

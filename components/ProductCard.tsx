@@ -4,6 +4,7 @@ import { ShoppingCart } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import Image from "next/image";
 import { Product } from "@/types/product";
+import Link from "next/link";
 
 export default function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useCart();
@@ -29,18 +30,24 @@ export default function ProductCard({ product }: { product: Product }) {
   return (
     <div className="bg-white/90 rounded-3xl shadow-xl border border-[var(--cake-yellow)] flex flex-col p-5 items-center transition hover:scale-[1.03] hover:shadow-2xl group relative">
       <div className="relative w-36 h-36 mb-4">
-        <Image
-          src={product.image_url}
-          alt={product.name}
-          fill
-          className="object-cover rounded-2xl bg-[var(--cake-pink)]/20 transition group-hover:scale-105"
-          sizes="144px"
-        />
-        {outOfStock && (
-          <span className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-red-500 text-white text-xs font-semibold shadow">
-            Out of Stock
-          </span>
-        )}
+        <Link
+          href={`/products/${product.id}`}
+          className="block relative aspect-square w-full bg-[var(--cake-yellow)]/20 transition-transform group-hover:scale-[1.03]"
+          tabIndex={-1}
+        >
+          <Image
+            src={product.image_url}
+            alt={product.name}
+            fill
+            className="object-cover rounded-2xl bg-[var(--cake-pink)]/20 transition group-hover:scale-105"
+            sizes="144px"
+          />
+          {outOfStock && (
+            <span className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-red-500 text-white text-xs font-semibold shadow">
+              Out of Stock
+            </span>
+          )}
+        </Link>
       </div>
       <h3 className="font-bold text-[var(--cake-brown)] text-xl mb-1 text-center">
         {product.name}

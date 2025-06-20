@@ -8,8 +8,10 @@ import { useCart } from "@/context/CartContext";
 import { supabase } from "@/lib/supabaseClient";
 
 const NAV_LINKS = [
-  { href: "/#products", label: "Cakes" },
-  { href: "/#about", label: "About" },
+  { href: "/", label: "Home" },
+  { href: "/products", label: "Cakes" },
+  { href: "/about", label: "About" },
+  { href: "/contact", label: "Contact" },
 ];
 
 const ADMIN_EMAILS = ["kbandison@gmail.com"]; // update as needed
@@ -22,25 +24,13 @@ export default function NavBar() {
 
   const { totalCount } = useCart();
 
-  // Hydration-safe state for badge, hash, and admin
+  // Hydration-safe state for badge & admin
   const [hasMounted, setHasMounted] = useState(false);
-  const [activeHash, setActiveHash] = useState("");
   const [isAdmin, setIsAdmin] = useState(false);
 
-  // Hash logic - only client-side
   useEffect(() => {
     setHasMounted(true);
-    // Set current hash, update on hash change
-    if (typeof window !== "undefined") {
-      setActiveHash(window.location.hash);
-      const handler = () => setActiveHash(window.location.hash);
-      window.addEventListener("hashchange", handler);
-      return () => window.removeEventListener("hashchange", handler);
-    }
-  }, []);
-
-  // Check admin status on mount
-  useEffect(() => {
+    // Check admin on mount
     (async () => {
       const { data } = await supabase.auth.getUser();
       setIsAdmin(!!data.user && ADMIN_EMAILS.includes(data.user.email || ""));
@@ -54,13 +44,11 @@ export default function NavBar() {
     router.push("/admin/login");
   }
 
-  // Cart icon behavior
+  // Cart icon handler - always opens drawer
   const handleCartClick = (e: React.MouseEvent) => {
-    if (typeof window !== "undefined" && window.innerWidth >= 768) {
-      e.preventDefault();
-      setDrawerOpen(true);
-    }
-    // else: let Link go to /cart on mobile
+    e.preventDefault();
+    setDrawerOpen(true);
+    setMenuOpen(false); // Also close mobile menu if open
   };
 
   return (
@@ -80,50 +68,44 @@ export default function NavBar() {
 
           {/* Desktop links */}
           <div className="hidden md:flex items-center gap-6">
-            {NAV_LINKS.map((link) => {
-              const isHashLink = link.href.startsWith("/#");
-              // Hydration-safe: only highlight hash links after mount
-              const isActive =
-                pathname === link.href ||
-                (hasMounted &&
-                  isHashLink &&
-                  activeHash === link.href.replace("/", ""));
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`text-[var(--cake-brown)] font-medium px-2 py-1 rounded transition
-                    hover:bg-[var(--cake-yellow)]/60 focus-visible:ring-2 focus-visible:ring-[var(--cake-mint)]
-                    ${
-                      isActive ? "underline underline-offset-4 font-bold" : ""
-                    }`}
-                >
-                  {link.label}
-                </Link>
-              );
-            })}
+            {NAV_LINKS.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`text-[var(--cake-brown)] font-medium px-2 py-1 rounded transition
+                  hover:bg-[var(--cake-yellow)]/60 focus-visible:ring-2 focus-visible:ring-[var(--cake-mint)]
+                  ${
+                    pathname === link.href ||
+                    (link.href.startsWith("/#") &&
+                      typeof window !== "undefined" &&
+                      window.location.hash === link.href.replace("/", ""))
+                      ? "underline underline-offset-4 font-bold"
+                      : ""
+                  }`}
+              >
+                {link.label}
+              </Link>
+            ))}
             {/* Cart Icon */}
-            <Link
-              href="/cart"
+            <button
               className="relative ml-2 flex items-center group focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cake-mint)]"
               aria-label="View cart"
               onClick={handleCartClick}
+              type="button"
             >
               <ShoppingCart className="w-7 h-7 text-[var(--cake-brown)] group-hover:scale-110 transition" />
-              {/* Hydration-safe badge */}
               {hasMounted && totalCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-[var(--cake-yellow)] text-[var(--cake-brown)] text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow ring-2 ring-white">
+                <span className="absolute -top-2 -right-4 bg-[var(--cake-yellow)] text-[var(--cake-brown)] text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow ring-2 ring-white">
                   {totalCount}
                 </span>
               )}
-            </Link>
+            </button>
             {/* Admin/Logout Button */}
             {hasMounted &&
               (isAdmin ? (
                 <button
                   onClick={handleLogout}
                   className="ml-4 px-4 py-2 rounded-xl font-semibold bg-[var(--cake-brown)] text-white shadow hover:bg-[var(--cake-mint)] hover:text-[var(--cake-brown)] transition"
-                  type="button"
                 >
                   Logout
                 </button>
@@ -164,27 +146,25 @@ export default function NavBar() {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/cart"
+            <button
               className="relative flex items-center py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--cake-mint)]"
               aria-label="View cart"
-              onClick={() => setMenuOpen(false)}
+              onClick={handleCartClick}
+              type="button"
             >
               <ShoppingCart className="w-7 h-7 text-[var(--cake-brown)]" />
-              {/* Hydration-safe badge for mobile */}
               {hasMounted && totalCount > 0 && (
                 <span className="absolute -top-2 -right-2 bg-[var(--cake-yellow)] text-[var(--cake-brown)] text-xs font-bold rounded-full w-6 h-6 flex items-center justify-center shadow ring-2 ring-white">
                   {totalCount}
                 </span>
               )}
-            </Link>
+            </button>
             {/* Admin/Logout button in mobile */}
             {hasMounted &&
               (isAdmin ? (
                 <button
                   onClick={handleLogout}
                   className="mt-4 px-4 py-2 rounded-xl font-semibold bg-[var(--cake-brown)] text-white shadow hover:bg-[var(--cake-mint)] hover:text-[var(--cake-brown)] transition"
-                  type="button"
                 >
                   Logout
                 </button>
@@ -199,7 +179,7 @@ export default function NavBar() {
           </div>
         )}
       </header>
-      {/* Cart Drawer: overlays everything, never SSR */}
+      {/* Cart Drawer overlays everything and is always available */}
       <CartDrawer open={drawerOpen} onClose={() => setDrawerOpen(false)} />
     </>
   );

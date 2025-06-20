@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { X } from "lucide-react";
 import { useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useCart } from "@/context/CartContext";
+import { useRouter } from "next/navigation";
+// import { Router } from "next/router";
 
 type CartItem = {
   id: string;
@@ -31,6 +34,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
     return () => window.removeEventListener("keydown", handler);
   }, [open, onClose]);
 
+  const router = useRouter();
+
   return (
     <AnimatePresence>
       {open && (
@@ -51,8 +56,14 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", stiffness: 330, damping: 40 }}
-            className="z-10 ml-auto w-full max-w-md h-full bg-white/80 backdrop-blur-lg shadow-2xl rounded-l-xl flex flex-col relative overflow-hidden p-4"
+            className={`
+  z-10 ml-auto h-full bg-white/90 backdrop-blur-lg shadow-2xl flex flex-col relative overflow-hidden
+  p-4 rounded-l-xl
+  w-[90vw] max-w-[430px] md:w-[430px]
+  fixed right-0 top-0 bottom-0
+`}
             tabIndex={0}
+            style={{ outline: "none" }}
           >
             <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-[var(--cake-pink)]/60 via-[var(--cake-mint)]/50 to-[var(--cake-yellow)]/60 blur-[2px] pointer-events-none" />
 
@@ -69,7 +80,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-4 px-1 pt-3">
+            <div className="flex-1 overflow-y-auto space-y-4 px-1 pt-3 min-h-[140px]">
               {cartItems.length === 0 ? (
                 <div className="text-[var(--cake-brown)] text-center opacity-60 py-10">
                   Your cart is empty!
@@ -83,8 +94,8 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                         <Image
                           src={item.image}
                           alt={item.name}
-                          width={160}
-                          height={160}
+                          width={64}
+                          height={64}
                           className="w-16 h-16 object-cover rounded-2xl bg-[var(--cake-pink)]/20"
                         />
                         <div className="flex-1">
@@ -102,6 +113,7 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                               }
                               aria-label={`Decrease quantity of ${item.name}`}
                               disabled={item.quantity <= 1}
+                              type="button"
                             >
                               –
                             </button>
@@ -118,12 +130,14 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                               }
                               aria-label={`Increase quantity of ${item.name}`}
                               disabled={atLimit}
+                              type="button"
                             >
                               +
                             </button>
                             <button
                               className="ml-2 text-xs text-red-500 underline"
                               onClick={() => removeFromCart(item.id)}
+                              type="button"
                             >
                               Remove
                             </button>
@@ -172,24 +186,34 @@ export default function CartDrawer({ open, onClose }: CartDrawerProps) {
                 damping: 20,
               }}
               className="mx-auto mt-8 border-t-4 border-[var(--cake-brown)]/30"
-            >
-              <div className="pt-6 pb-6">
-                <div className="flex justify-between font-semibold text-lg text-[var(--cake-brown)] mb-4">
-                  <span>Total:</span>
-                  <span>${totalPrice.toFixed(2)}</span>
-                </div>
-                <button className="w-full bg-[var(--cake-pink)]/80 hover:bg-[var(--cake-pink)] text-[var(--cake-brown)] font-bold py-3 px-6 rounded-2xl shadow-lg transition-all duration-200 focus:ring-2 focus:ring-[var(--cake-mint)] text-lg">
-                  Checkout
-                </button>
-                <button
-                  onClick={clearCart}
-                  className="w-full mt-3 bg-[var(--cake-mint)]/70 hover:bg-[var(--cake-mint)] text-[var(--cake-brown)] font-bold py-3 px-6 rounded-2xl shadow-md transition-all duration-200 focus:ring-2 focus:ring-[var(--cake-pink)] text-lg"
-                  type="button"
-                >
-                  Clear Cart
-                </button>
+            />
+
+            <div className="pt-6 pb-6">
+              <div className="flex justify-between font-semibold text-lg text-[var(--cake-brown)] mb-4">
+                <span>Total:</span>
+                <span>${totalPrice.toFixed(2)}</span>
               </div>
-            </motion.div>
+              <button
+                className="w-full bg-[var(--cake-pink)]/80 hover:bg-[var(--cake-pink)] text-[var(--cake-brown)] font-bold py-3 px-6 rounded-2xl shadow-lg transition-all duration-200 focus:ring-2 focus:ring-[var(--cake-mint)] text-lg"
+                // TODO: Connect to checkout flow
+
+                disabled={cartItems.length === 0}
+                onClick={() => {
+                  onClose(); // Optionally close the drawer first
+                  router.push("/checkout");
+                }}
+              >
+                Checkout
+              </button>
+              <button
+                onClick={clearCart}
+                className="w-full mt-3 bg-[var(--cake-mint)]/70 hover:bg-[var(--cake-mint)] text-[var(--cake-brown)] font-bold py-3 px-6 rounded-2xl shadow-md transition-all duration-200 focus:ring-2 focus:ring-[var(--cake-pink)] text-lg"
+                type="button"
+                disabled={cartItems.length === 0}
+              >
+                Clear Cart
+              </button>
+            </div>
           </motion.aside>
         </div>
       )}

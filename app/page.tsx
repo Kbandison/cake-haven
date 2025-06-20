@@ -2,6 +2,7 @@ import Hero from "@/components/Hero";
 import SectionHeader from "@/components/SectionHeader";
 import ProductGrid from "@/components/ProductGrid";
 import About from "@/components/About";
+import BestSellers from "@/components/BestSellers";
 
 export default function HomePage() {
   return (
@@ -17,6 +18,7 @@ export default function HomePage() {
           id="products"
         />
         <ProductGrid />
+        <BestSellers />
         <About />
       </section>
     </main>

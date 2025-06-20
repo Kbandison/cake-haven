@@ -1,46 +1,36 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-// app/components/FeaturedProducts.tsx
 import { supabase } from "@/lib/supabase";
 import ProductCard from "@/components/ProductCard";
 import Link from "next/link";
 import { Product } from "@/types/product";
 
-export default async function FeaturedProducts() {
-  // Fetch the 3 newest active products (featured cakes)
+export default async function BestSellers() {
+  // Query the view!
   const { data: products, error } = await supabase
-    .from("products")
+    .from("best_selling_products")
     .select("*")
-    .eq("is_active", true)
-    .order("created_at", { ascending: false })
     .limit(3);
 
   if (error) {
     return (
-      <div className="p-8 text-center text-red-600">Unable to load cakes!</div>
+      <div className="p-8 text-center text-red-600">
+        Unable to load best sellers!
+      </div>
     );
   }
 
-  const productsTyped: Product[] =
-    products?.map((p: any) => ({
-      ...p,
-      ingredients:
-        typeof p.ingredients === "string"
-          ? JSON.parse(p.ingredients)
-          : p.ingredients,
-      tags: typeof p.tags === "string" ? JSON.parse(p.tags) : p.tags,
-    })) ?? [];
+  const productsTyped: Product[] = products ?? [];
 
   return (
     <section
-      className="max-w-5xl mx-auto px-4 py-12"
-      aria-labelledby="featured-cakes-heading"
+      className="max-w-5xl mx-auto px-4 py-12 my-12"
+      aria-labelledby="best-sellers-heading"
     >
       <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
         <h2
-          id="featured-cakes-heading"
+          id="best-sellers-heading"
           className="text-2xl font-bold text-[var(--cake-brown)]"
         >
-          Featured Cakes
+          Best Sellers
         </h2>
         <Link
           href="/products"

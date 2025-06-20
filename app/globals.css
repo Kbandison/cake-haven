@@ -143,3 +143,15 @@ button {
     @apply bg-background text-foreground;
   }
 }
+
+/* Remove arrows from number inputs (Chrome, Safari, Edge, Opera) */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Remove arrows from number inputs (Firefox) */
+input[type="number"] {
+  -moz-appearance: textfield;
+}
