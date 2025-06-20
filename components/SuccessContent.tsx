@@ -1,13 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { Suspense, useEffect, useState, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { Loader } from "lucide-react";
 
-function SuccessContent() {
+export default function SuccessContent() {
   const searchParams = useSearchParams();
   const orderId = searchParams.get("order");
   const [order, setOrder] = useState<any>(null);
@@ -192,8 +191,4 @@ function SuccessContent() {
       `}</style>
     </main>
   );
-}
-
-export default function SuccessPage() {
-  return <SuccessContent />;
 }
