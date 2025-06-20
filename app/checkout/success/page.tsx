@@ -15,6 +15,7 @@ export default function SuccessPage() {
   const MAX_RETRIES = 10;
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Fetch order on mount and retry if not found (webhook delay handling)
   useEffect(() => {
     if (!orderId) return;
 
@@ -30,16 +31,26 @@ export default function SuccessPage() {
       if (data) {
         setOrder(data);
         setLoading(false);
-        if (intervalRef.current) clearInterval(intervalRef.current);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       } else if (retries < MAX_RETRIES) {
         setRetries((r) => r + 1);
       } else {
         setLoading(false);
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
       }
     };
 
     fetchOrder();
-    intervalRef.current = setInterval(fetchOrder, 3000);
+
+    if (!order && retries < MAX_RETRIES) {
+      intervalRef.current = setInterval(fetchOrder, 3000);
+    }
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
