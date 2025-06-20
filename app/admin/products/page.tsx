@@ -38,6 +38,7 @@ export default function AdminProductsPage() {
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
   const PAGE_SIZE = 12;
 
   const [actionLoading, setActionLoading] = useState(false);
@@ -51,6 +52,11 @@ export default function AdminProductsPage() {
     const timeout = setTimeout(() => setSearch(searchInput), 350);
     return () => clearTimeout(timeout);
   }, [searchInput]);
+
+  // Reset page to 1 on new search
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   // Refetch function
   const fetchProducts = async (qsearch = search, qpage = page) => {
@@ -66,9 +72,10 @@ export default function AdminProductsPage() {
     if (qsearch) {
       query = query.ilike("name", `%${qsearch}%`);
     }
-    const { data, error } = await query;
+    const { data, error, count } = await query;
     if (error) setErrorMsg(error.message);
     setProducts(data || []);
+    setTotalCount(count || 0);
     setLoading(false);
     setSelected([]);
   };
@@ -297,6 +304,50 @@ export default function AdminProductsPage() {
           </div>
         ))}
       </div>
+
+      {/* Pagination */}
+      {totalCount > PAGE_SIZE && (
+        <nav
+          className="flex justify-center mt-10 gap-2"
+          aria-label="Pagination"
+        >
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page === 1}
+            className="px-3 py-2 rounded-lg bg-white border border-gray-300 text-[var(--cake-brown)] font-bold shadow hover:bg-[var(--cake-pink)]/40 disabled:opacity-40"
+            aria-label="Previous page"
+          >
+            &larr;
+          </button>
+          {Array.from({ length: Math.ceil(totalCount / PAGE_SIZE) }).map(
+            (_, idx) => (
+              <button
+                key={idx + 1}
+                onClick={() => setPage(idx + 1)}
+                className={`px-3 py-2 rounded-lg font-bold shadow border
+                ${
+                  page === idx + 1
+                    ? "bg-[var(--cake-pink)] text-[var(--cake-brown)] border-[var(--cake-pink)]"
+                    : "bg-white text-[var(--cake-brown)] border-gray-300 hover:bg-[var(--cake-yellow)]/40"
+                }`}
+                aria-current={page === idx + 1 ? "page" : undefined}
+              >
+                {idx + 1}
+              </button>
+            )
+          )}
+          <button
+            onClick={() =>
+              setPage((p) => Math.min(Math.ceil(totalCount / PAGE_SIZE), p + 1))
+            }
+            disabled={page === Math.ceil(totalCount / PAGE_SIZE)}
+            className="px-3 py-2 rounded-lg bg-white border border-gray-300 text-[var(--cake-brown)] font-bold shadow hover:bg-[var(--cake-pink)]/40 disabled:opacity-40"
+            aria-label="Next page"
+          >
+            &rarr;
+          </button>
+        </nav>
+      )}
 
       {/* MODAL: show at root level, state-based */}
       <ProductModal
