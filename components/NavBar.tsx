@@ -28,19 +28,30 @@ export default function NavBar() {
   const [hasMounted, setHasMounted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // Watch for auth state changes (login/logout) and re-check admin status
   useEffect(() => {
     setHasMounted(true);
-    // Check admin on mount
-    (async () => {
+
+    async function checkAdmin() {
       const { data } = await supabase.auth.getUser();
       setIsAdmin(!!data.user && ADMIN_EMAILS.includes(data.user.email || ""));
-    })();
+    }
+    checkAdmin();
+
+    // Listen for any login/logout changes
+    const { data: listener } = supabase.auth.onAuthStateChange(() => {
+      checkAdmin();
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
   }, []);
 
   // Logout handler
   async function handleLogout() {
     await supabase.auth.signOut();
-    setIsAdmin(false);
+    setIsAdmin(false); // for instant UI update
     router.push("/admin/login");
   }
 
