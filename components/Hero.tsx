@@ -93,8 +93,8 @@ export default function Hero() {
           </p>
           <div className="mb-6 w-full flex flex-col md:flex-row items-center gap-2">
             <span className="inline-flex items-center bg-[var(--cake-mint)] px-4 py-2 rounded-full text-[var(--cake-brown)] font-semibold shadow">
-              🎂 Try our <span className="ml-1 font-bold">{featuredCake}</span>{" "}
-              this week!
+              🎂 Try our cake of the week -{" "}
+              <span className="ml-1 font-bold">{featuredCake} </span>!
             </span>
           </div>
           <div className="relative flex items-center">
